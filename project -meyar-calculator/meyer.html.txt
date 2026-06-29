@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>معيار - الحاسبات</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    body{background:#050510;color:#fff}
+    a{text-decoration:none;color:inherit}
+    .app{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:#0b0b1a;padding:24px;border-left:1px solid #2b2b3f}
+    .main{flex:1;padding:24px 32px}
+    .logo-box{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .logo-img{width:48px;height:48px}
+    .logo-text{font-size:22px;color:#c792ff}
+    .tagline{color:#cfd2ff;font-size:13px;margin-bottom:20px}
+    .menu{list-style:none}
+    .menu li{padding:10px 12px;margin-bottom:6px;border-radius:8px;cursor:pointer;color:#cfd2ff;font-size:14px;transition:.2s}
+    .menu li:hover{background:#151528}
+    .menu li.active{background:linear-gradient(90deg,#7b3cff,#c792ff);color:#fff}
+    .card{background:#0b0b1a;border-radius:16px;padding:16px 20px;border:1px solid #2b2b3f;margin-bottom:20px}
+    .card h3{margin-bottom:12px;font-size:18px}
+    .controls{margin-bottom:20px;background:#0b0b1a;padding:12px;border-radius:10px;border:1px solid #2b2b3f;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .controls input,.controls select{padding:4px 6px;border-radius:6px;border:1px solid #3b3b5f;background:#050510;color:#fff;font-size:13px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    thead{background:#151528}
+    th,td{padding:8px;font-size:14px;text-align:center}
+    tbody tr:nth-child(even){background:#101020}
+    tbody tr:nth-child(odd){background:#080818}
+    input,select{width:100%;padding:4px 6px;border-radius:6px;border:1px solid #3b3b5f;background:#050510;color:#fff;font-size:13px}
+    .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px;flex-wrap:wrap}
+    button{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-size:14px}
+    .secondary{background:#1b1b2f;color:#cfd2ff}
+    .primary{background:linear-gradient(90deg,#7b3cff,#c792ff);color:#fff}
+    .stats{list-style:none;font-size:14px;margin-bottom:12px}
+    .stats li{margin-bottom:4px}
+    .hidden{display:none}
+    .single-column{display:block}
+    .single-column .card{max-width:520px}
+    label{display:block;margin:6px 0 2px;font-size:14px}
+    .result-text{margin-top:10px;font-size:15px}
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- الشريط الجانبي -->
+  <aside class="sidebar">
+    <div class="logo-box">
+      <!-- لوقو SVG مولّد -->
+      <svg class="logo-img" viewBox="0 0 48 48" fill="none">
+        <defs>
+          <linearGradient id="grad" x1="0" y1="0" x2="48" y2="48">
+            <stop offset="0%" stop-color="#7b3cff"/>
+            <stop offset="100%" stop-color="#c792ff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="24" cy="24" r="22" fill="url(#grad)" stroke="#ffffff22" stroke-width="2"/>
+        <path d="M14 28 L24 14 L34 28" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="24" cy="32" r="3" fill="white"/>
+      </svg>
+      <h2 class="logo-text">معيار</h2>
+    </div>
+    <p class="tagline">دقّة في الحساب • سهولة في الاستخدام</p>
+
+    <ul class="menu">
+      <li class="active" data-view="gpa">حاسبة المعدل الجامعي</li>
+      <li data-view="age">حاسبة العمر</li>
+      <li data-view="finance">حاسبة التمويل</li>
+      <li data-view="loans">حاسبة القروض</li>
+      <li data-view="vat">ضريبة القيمة المضافة</li>
+      <li data-view="zakat">حاسبة الزكاة</li>
+      <li data-view="percent">حاسبة النسبة المئوية</li>
+    </ul>
+  </aside>
+
+  <!-- المحتوى -->
+  <main class="main">
+
+    <!-- حاسبة المعدل -->
+    <section id="view-gpa">
+      <div class="controls">
+        <label>عدد المواد:</label>
+        <input type="number" id="subjectsCountInput" min="1" max="20" value="4">
+
+        <label>نظام المعدل:</label>
+        <select id="gpaSystem">
+          <option value="5" selected>من 5</option>
+          <option value="4">من 4</option>
+        </select>
+
+        <button id="generateBtn" class="secondary">إنشاء المواد</button>
+      </div>
+
+      <div class="card">
+        <h3>مواد الفصل الدراسي</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>المادة</th>
+              <th>الساعات</th>
+              <th>التقدير</th>
+              <th>نقاط الجودة</th>
+              <th>النقاط</th>
+            </tr>
+          </thead>
+          <tbody id="subjectsBody"></tbody>
+        </table>
+        <div class="actions">
+          <button id="resetBtn" class="secondary">إعادة تعيين</button>
+          <button id="calcBtn" class="primary">حساب المعدل</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>النتيجة النهائية</h3>
+        <p style="font-size:24px;color:#c792ff;">
+          <span id="finalGpa">0.00</span>
+          <span id="gpaOutOf">من 5.00</span>
+        </p>
+        <p id="finalText">—</p>
+        <ul class="stats">
+          <li>إجمالي النقاط: <span id="totalPoints">0</span></li>
+          <li>إجمالي الساعات: <span id="totalHours">0</span></li>
+          <li>أعلى تقدير: <span id="maxGrade">—</span></li>
+          <li>عدد المواد: <span id="subjectsCount">0</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- حاسبة العمر -->
+    <section id="view-age" class="hidden">
+      <div class="single-column">
+        <div class="card">
+          <h3>حاسبة العمر</h3>
+          <label>تاريخ الميلاد:</label>
+          <input type="date" id="birthInput">
+          <div class="actions">
+            <button class="primary" onclick="calcAge()">احسب العمر</button>
+          </div>
+          <p class="result-text" id="ageResult">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- حاسبة التمويل -->
+    <section id="view-finance" class="hidden">
+      <div class="single-column">
+        <div class="card">
+          <h3>حاسبة التمويل</h3>
+          <label>مبلغ التمويل (ريال):</label>
+          <input type="number" id="financeAmount">
+          <label>مدة السداد (أشهر):</label>
+          <input type="number" id="financeMonths">
+          <label>نسبة الفائدة السنوية (%):</label>
+          <input type="number" id="financeRate" value="5">
+          <div class="actions">
+            <button class="primary" onclick="calcFinance()">احسب القسط</button>
+          </div>
+          <p class="result-text" id="financeResult">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- حاسبة القروض -->
+    <section id="view-loans" class="hidden">
+      <div class="single-column">
+        <div class="card">
+          <h3>حاسبة القروض</h3>
+          <label>مبلغ القرض (ريال):</label>
+          <input type="number" id="loanAmount">
+          <label>مدة السداد (أشهر):</label>
+          <input type="number" id="loanMonths">
+          <label>نسبة الفائدة السنوية (%):</label>
+          <input type="number" id="loanRate" value="4">
+          <div class="actions">
+            <button class="primary" onclick="calcLoan()">احسب القسط</button>
+          </div>
+          <p class="result-text" id="loanResult">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ضريبة القيمة المضافة -->
+    <section id="view-vat" class="hidden">
+      <div class="single-column">
+        <div class="card">
+          <h3>ضريبة القيمة المضافة</h3>
+          <label>المبلغ قبل الضريبة (ريال):</label>
+          <input type="number" id="vatAmount">
+          <label>نسبة الضريبة (%):</label>
+          <input type="number" id="vatRate" value="15">
+          <div class="actions">
+            <button class="primary" onclick="calcVat()">احسب الضريبة</button>
+          </div>
+          <p class="result-text" id="vatResult">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- حاسبة الزكاة -->
+    <section id="view-zakat" class="hidden">
+      <div class="single-column">
+        <div class="card">
+          <h3>حاسبة الزكاة</h3>
+          <label>المبلغ الخاضع للزكاة (ريال):</label>
+          <input type="number" id="zakatAmount">
+          <div class="actions">
+            <button class="primary" onclick="calcZakat()">احسب الزكاة</button>
+          </div>
+          <p class="result-text" id="zakatResult">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- حاسبة النسبة المئوية -->
+    <section id="view-percent" class="hidden">
+      <div class="single-column">
+        <div class="card">
+          <h3>حاسبة النسبة المئوية</h3>
+          <label>القيمة الجزئية:</label>
+          <input type="number" id="partValue">
+          <label>القيمة الكلية:</label>
+          <input type="number" id="totalValue">
+          <div class="actions">
+            <button class="primary" onclick="calcPercent()">احسب النسبة</button>
+          </div>
+          <p class="result-text" id="percentResult">—</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // التنقل بين الحاسبات
+  const menuItems = document.querySelectorAll(".menu li");
+  const views = document.querySelectorAll("main section");
+
+  menuItems.forEach(item => {
+    item.addEventListener("click", () => {
+      const target = item.getAttribute("data-view");
+      menuItems.forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+      views.forEach(v => {
+        if (v.id === "view-" + target) v.classList.remove("hidden");
+        else v.classList.add("hidden");
+      });
+    });
+  });
+
+  // حاسبة المعدل
+  const subjectsBody = document.getElementById("subjectsBody");
+  const subjectsCountInput = document.getElementById("subjectsCountInput");
+
+  function createRow(index) {
+    return `
+      <tr>
+        <td><input type="text" value="مادة ${index + 1}"></td>
+        <td><input type="number" class="hours" value="3"></td>
+        <td>
+          <select class="grade">
+            <option value="4.75">A+</option>
+            <option value="4.00">A</option>
+            <option value="3.50">B+</option>
+            <option value="3.00">B</option>
+            <option value="2.50">C+</option>
+            <option value="2.00">C</option>
+            <option value="1.00">D</option>
+            <option value="0.00">F</option>
+          </select>
+        </td>
+        <td class="quality">0.00</td>
+        <td class="points">0.00</td>
+      </tr>
+    `;
+  }
+
+  document.getElementById("generateBtn").addEventListener("click", () => {
+    const count = Number(subjectsCountInput.value);
+    subjectsBody.innerHTML = "";
+    for (let i = 0; i < count; i++) subjectsBody.innerHTML += createRow(i);
+    document.getElementById("subjectsCount").textContent = count;
+    document.getElementById("finalGpa").textContent = "0.00";
+    document.getElementById("finalText").textContent = "—";
+    document.getElementById("totalPoints").textContent = "0";
+    document.getElementById("totalHours").textContent = "0";
+    document.getElementById("maxGrade").textContent = "—";
+  });
+
+  function calcGpa() {
+    const rows = document.querySelectorAll("#subjectsBody tr");
+    let totalPoints = 0, totalHours = 0, maxQuality = 0;
+    const gpaSystem = Number(document.getElementById("gpaSystem").value);
+
+    rows.forEach(row => {
+      const hours = Number(row.querySelector(".hours").value) || 0;
+      const quality = Number(row.querySelector(".grade").value) || 0;
+      const points = hours * quality;
+
+      row.querySelector(".quality").textContent = quality.toFixed(2);
+      row.querySelector(".points").textContent = points.toFixed(2);
+
+      totalHours += hours;
+      totalPoints += points;
+      if (quality > maxQuality) maxQuality = quality;
+    });
+
+    const gpa = totalHours ? totalPoints / totalHours : 0;
+
+    document.getElementById("finalGpa").textContent = gpa.toFixed(2);
+    document.getElementById("totalPoints").textContent = totalPoints.toFixed(2);
+    document.getElementById("totalHours").textContent = totalHours;
+
+    document.getElementById("gpaOutOf").textContent =
+      gpaSystem === 5 ? "من 5.00" : "من 4.00";
+
+    let text = "—";
+    if (gpaSystem === 5) {
+      if (gpa >= 4.5) text = "ممتاز";
+      else if (gpa >= 3.75) text = "جيد جداً";
+      else if (gpa >= 2.75) text = "جيد";
+      else if (gpa >= 2.0) text = "مقبول";
+      else text = "ضعيف";
+    } else {
+      if (gpa >= 3.5) text = "ممتاز";
+      else if (gpa >= 3.0) text = "جيد جداً";
+      else if (gpa >= 2.5) text = "جيد";
+      else if (gpa >= 2.0) text = "مقبول";
+      else text = "ضعيف";
+    }
+    document.getElementById("finalText").textContent = text;
+
+    const gradeMap = {
+      4.75:"A+",4.0:"A",3.5:"B+",3.0:"B",2.5:"C+",2.0:"C",1.0:"D",0.0:"F"
+    };
+    document.getElementById("maxGrade").textContent = gradeMap[maxQuality] || "—";
+  }
+
+  document.getElementById("calcBtn").addEventListener("click", calcGpa);
+
+  window.addEventListener("load", () => {
+    subjectsCountInput.value = 4;
+    document.getElementById("generateBtn").click();
+  });
+
+  // حاسبة العمر
+  function calcAge() {
+    const birthValue = document.getElementById("birthInput").value;
+    if (!birthValue) {
+      document.getElementById("ageResult").textContent = "رجاءً أدخل تاريخ الميلاد";
+      return;
+    }
+    const birth = new Date(birthValue);
+    const today = new Date();
+    let years = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) years--;
+    document.getElementById("ageResult").textContent = years + " سنة";
+  }
+
+  // حاسبة التمويل
+  function calcFinance() {
+    const amount = Number(document.getElementById("financeAmount").value);
+    const months = Number(document.getElementById("financeMonths").value);
+    const rate = Number(document.getElementById("financeRate").value);
+    if (!amount || !months) {
+      document.getElementById("financeResult").textContent = "أدخل مبلغ التمويل ومدة السداد";
+      return;
+    }
+    const monthlyRate = rate ? (rate/100)/12 : 0;
+    let monthlyPayment;
+    if (monthlyRate > 0) {
+      const factor = (monthlyRate * Math.pow(1+monthlyRate, months)) / (Math.pow(1+monthlyRate, months) - 1);
+      monthlyPayment = amount * factor;
+    } else {
+      monthlyPayment = amount / months;
+    }
+    document.getElementById("financeResult").textContent =
+      "القسط الشهري التقريبي: " + monthlyPayment.toFixed(2) + " ريال";
+  }
+
+  // حاسبة القروض
+  function calcLoan() {
+    const amount = Number(document.getElementById("loanAmount").value);
+    const months = Number(document.getElementById("loanMonths").value);
+    const rate = Number(document.getElementById("loanRate").value);
+    if (!amount || !months) {
+      document.getElementById("loanResult").textContent = "أدخل مبلغ القرض ومدة السداد";
+      return;
+    }
+    const monthlyRate = rate ? (rate/100)/12 : 0;
+    let monthlyPayment;
+    if (monthlyRate > 0) {
+      const factor = (monthlyRate * Math.pow(1+monthlyRate, months)) / (Math.pow(1+monthlyRate, months) - 1);
+      monthlyPayment = amount * factor;
+    } else {
+      monthlyPayment = amount / months;
+    }
+    document.getElementById("loanResult").textContent =
+      "القسط الشهري التقريبي: " + monthlyPayment.toFixed(2) + " ريال";
+  }
+
+  // ضريبة القيمة المضافة
+  function calcVat() {
+    const amount = Number(document.getElementById("vatAmount").value);
+    const rate = Number(document.getElementById("vatRate").value);
+    if (!amount) {
+      document.getElementById("vatResult").textContent = "أدخل المبلغ قبل الضريبة";
+      return;
+    }
+    const vatValue = amount * (rate/100);
+    const total = amount + vatValue;
+    document.getElementById("vatResult").textContent =
+      "قيمة الضريبة: " + vatValue.toFixed(2) + " ريال، المجموع بعد الضريبة: " + total.toFixed(2) + " ريال";
+  }
+
+  // الزكاة
+  function calcZakat() {
+    const amount = Number(document.getElementById("zakatAmount").value);
+    if (!amount) {
+      document.getElementById("zakatResult").textContent = "أدخل المبلغ الخاضع للزكاة";
+      return;
+    }
+    const zakat = amount * 0.025;
+    document.getElementById("zakatResult").textContent =
+      "مقدار الزكاة (2.5%): " + zakat.toFixed(2) + " ريال";
+  }
+
+  // النسبة المئوية
+  function calcPercent() {
+    const part = Number(document.getElementById("partValue").value);
+    const total = Number(document.getElementById("totalValue").value);
+    if (!part || !total) {
+      document.getElementById("percentResult").textContent = "أدخل القيمتين الجزئية والكلية";
+      return;
+    }
+    const percent = (part / total) * 100;
+    document.getElementById("percentResult").textContent =
+      "النسبة المئوية: " + percent.toFixed(2) + "٪";
+  }
+</script>
+
+</body>
+</html>
