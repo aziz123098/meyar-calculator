@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="640" viewBox="0 0 1440 640" role="img" aria-labelledby="title desc">
+<title id="title">Meyar — Arabic Calculator Suite</title><desc id="desc">Project cover using Meyar's existing purple logo and dark palette.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#050510"/><stop offset="1" stop-color="#17102e"/></linearGradient><linearGradient id="grad" x2="1" y2="1"><stop stop-color="#7b3cff"/><stop offset="1" stop-color="#c792ff"/></linearGradient></defs>
+<rect width="1440" height="640" rx="28" fill="url(#bg)"/>
+<circle cx="1300" cy="70" r="240" fill="#7b3cff" opacity=".07"/><circle cx="1100" cy="600" r="330" fill="#c792ff" opacity=".04"/>
+<rect x="64" y="64" width="232" height="34" rx="17" fill="#25163f"/><text x="180" y="87" fill="#c792ff" font-family="sans-serif" font-size="14" text-anchor="middle" letter-spacing="2">ARABIC CALCULATOR SUITE</text>
+<g transform="translate(1160 150) scale(3.8)"><circle cx="24" cy="24" r="22" fill="url(#grad)" stroke="#ffffff22" stroke-width="2"/><path d="M14 28 L24 14 L34 28" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="32" r="3" fill="white"/></g>
+<text x="64" y="226" font-family="sans-serif" font-size="100" font-weight="700" fill="#ffffff" letter-spacing="-4">Meyar</text>
+<text x="69" y="286" font-family="sans-serif" font-size="28" fill="#cfd2ff">Everyday calculations. One Arabic interface.</text>
+<text x="69" y="332" font-family="sans-serif" font-size="19" fill="#9895b7">A lightweight web project built with HTML, CSS and JavaScript.</text>
+<path d="M68 380H1372" stroke="#302642"/>
+<g font-family="sans-serif" font-size="20" fill="#eee8ff">
+<rect x="68" y="416" width="188" height="66" rx="12" fill="#171126" stroke="#3b2c56"/><text x="162" y="457" text-anchor="middle">GPA</text>
+<rect x="272" y="416" width="188" height="66" rx="12" fill="#171126" stroke="#3b2c56"/><text x="366" y="457" text-anchor="middle">Age</text>
+<rect x="476" y="416" width="188" height="66" rx="12" fill="#171126" stroke="#3b2c56"/><text x="570" y="457" text-anchor="middle">Finance / Loans</text>
+<rect x="680" y="416" width="188" height="66" rx="12" fill="#171126" stroke="#3b2c56"/><text x="774" y="457" text-anchor="middle">VAT</text>
+<rect x="884" y="416" width="188" height="66" rx="12" fill="#171126" stroke="#3b2c56"/><text x="978" y="457" text-anchor="middle">Zakat</text>
+<rect x="1088" y="416" width="284" height="66" rx="12" fill="#171126" stroke="#3b2c56"/><text x="1230" y="457" text-anchor="middle">Percentage</text>
+</g>
+<text x="68" y="565" font-family="sans-serif" font-size="17" fill="#a99dc0" letter-spacing="1">7 CALCULATOR VIEWS   /   RTL INTERFACE   /   CLIENT-SIDE</text>
+<text x="1372" y="565" text-anchor="end" font-family="sans-serif" font-size="17" fill="#a99dc0">Abdulaziz Al-Anazi</text>
+</svg>
