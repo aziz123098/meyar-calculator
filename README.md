@@ -1,3 +1,5 @@
+> **UI update 0.3:** Ivory/forest theme, dark mode, four tabs, account screen designs and report selection. Email/Apple authentication is **not connected**; continue as guest. See [design notes](docs/DESIGN.md).
+
 <div align="center">
 
 # معيار | Meyar
