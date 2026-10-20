@@ -1,103 +1,54 @@
-function calcGpa() {
-  const rows = document.querySelectorAll("#subjectsBody tr");
-  let totalPoints = 0;
-  let totalHours = 0;
-  let maxQuality = 0;
-
-  rows.forEach((row) => {
-    const hoursInput = row.querySelector(".hours");
-    const gradeSelect = row.querySelector(".grade");
-    const qualityCell = row.querySelector(".quality");
-    const pointsCell = row.querySelector(".points");
-
-    const hours = Number(hoursInput.value) || 0;
-    const quality = Number(gradeSelect.value) || 0;
-    const points = hours * quality;
-
-    qualityCell.textContent = quality.toFixed(2);
-    pointsCell.textContent = points.toFixed(2);
-
-    totalHours += hours;
-    totalPoints += points;
-    if (quality > maxQuality) maxQuality = quality;
-  });
-
-  const gpa = totalHours ? totalPoints / totalHours : 0;
-
-  document.getElementById("totalPoints").textContent = totalPoints.toFixed(2);
-  document.getElementById("totalHours").textContent = totalHours;
-  document.getElementById("subjectsCount").textContent = rows.length;
-  document.getElementById("finalGpa").textContent = gpa.toFixed(2);
-  document.getElementById("currentGpa").textContent = gpa.toFixed(2);
-
-  // تحويل المعدل إلى وصف
-  let text = "";
-  if (gpa >= 4.5) text = "ممتاز";
-  else if (gpa >= 3.75) text = "جيد جداً";
-  else if (gpa >= 2.75) text = "جيد";
-  else if (gpa >= 2.0) text = "مقبول";
-  else text = "ضعيف";
-
-  document.getElementById("finalText").textContent = text;
-
-  // أعلى تقدير
-  let maxGradeText = "";
-  switch (maxQuality) {
-    case 4.75:
-      maxGradeText = "A+";
-      break;
-    case 4.0:
-      maxGradeText = "A";
-      break;
-    case 3.5:
-      maxGradeText = "B+";
-      break;
-    case 3.0:
-      maxGradeText = "B";
-      break;
-    case 2.5:
-      maxGradeText = "C+";
-      break;
-    case 2.0:
-      maxGradeText = "C";
-      break;
-    case 1.0:
-      maxGradeText = "D";
-      break;
-    default:
-      maxGradeText = "F";
-  }
-  document.getElementById("maxGrade").textContent = maxGradeText;
+import {gradeMaps,num,gpa,installment,vat,percentage,zakat,age,evaluate} from './calculations.js';
+import {createReport,exportCsv,shareText} from './reports.js';
+const $=s=>document.querySelector(s), all=s=>[...document.querySelectorAll(s)];
+const catalog={general:['الحاسبة العامة','الأساسيات والعمليات العلمية','±'],gpa:['المعدل الجامعي','فصلي وتراكمي بسلم قابل للتعديل','A+'],age:['العمر','سنوات مكتملة وأيام','◷'],finance:['التمويل','قسط شهري وتكلفة تقديرية','↗'],loans:['القروض','تقدير أقساط السداد','≋'],vat:['ضريبة القيمة المضافة','إضافة الضريبة أو استخراجها','٪'],zakat:['الزكاة','حساب نسبة ٢٫٥٪','◇'],percent:['النسبة المئوية','قيمة الجزء من الكل','%']};
+const fmt=(n,d=2)=>new Intl.NumberFormat('ar-SA',{maximumFractionDigits:d}).format(n);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let active='general',current=null,toastTimer;
+function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,3500);}
+function invalidate(){current=null;$('#result').hidden=true;$('#error').hidden=true;}
+const field=(id,label,value='',type='text')=>`<label class="field"><span>${label}</span><input id="${id}" name="${id}" type="${type}" ${type==='text'?'inputmode="decimal"':''} value="${esc(value)}" autocomplete="off"></label>`;
+const select=(id,label,options)=>`<label class="field"><span>${label}</span><select id="${id}" name="${id}">${options}</select></label>`;
+$('#calculator-grid').innerHTML=Object.entries(catalog).map(([key,[title,description,icon]])=>`<a class="tile" href="#${key}"><span class="tile-icon" aria-hidden="true">${icon}</span><h3>${title}</h3><p>${description}</p></a>`).join('');
+function course(){const i=all('.course').length+1;const node=document.createElement('div');node.className='course';node.innerHTML=`<label class="field course-name"><span>اسم المادة</span><input class="name" type="text" maxlength="80" value="مادة ${i}"></label><label class="field"><span>الساعات</span><input class="hours" inputmode="decimal" value="3"></label><label class="field"><span>التقدير</span><select class="grade">${Object.keys(gradeMaps[5]).map(x=>`<option>${x}</option>`).join('')}</select></label><button type="button" aria-label="حذف المادة">×</button>`;node.querySelector('button').onclick=()=>{if(all('.course').length===1)return toast('يجب إبقاء مادة واحدة على الأقل.');node.remove();invalidate();};$('#courses').append(node);}
+function mapping(){const map=gradeMaps[$('#scale').value];$('#map-fields').innerHTML=Object.entries(map).map(([key,value])=>`<label class="field"><span dir="ltr">${key}</span><input data-grade="${key}" inputmode="decimal" value="${value}" aria-label="نقاط ${key}"></label>`).join('');}
+function renderCalculator(key){active=key;invalidate();$('#calc-title').textContent=catalog[key][0];$('#calc-description').textContent=catalog[key][1];$('#calc-kicker').textContent='معيار / '+catalog[key][0];let content='';
+if(key==='general'){content=`<label class="field"><span>العملية الحسابية</span><input id="expression" class="expression" dir="ltr" inputmode="text" maxlength="300" autocomplete="off" placeholder="(12 + 8) × 3" aria-label="العملية الحسابية"></label><div class="keypad">${['AC','⌫','(',')','7','8','9','÷','4','5','6','×','1','2','3','−','0','.','%','+'].map(x=>`<button type="button" data-key="${x}" class="${/[÷×−+]/.test(x)?'operator':''}" aria-label="${x==='⌫'?'حذف آخر رمز':x==='AC'?'مسح العملية':x}">${x}</button>`).join('')}</div><details class="grade-map"><summary>عمليات علمية</summary><div class="science">${['sqrt(','^','!','pi','sin(','cos(','tan(','abs(','log(','ln(','e'].map(x=>`<button class="button secondary" type="button" data-key="${x}">${x==='sqrt('?'√':x}</button>`).join('')}</div>${select('angle','وحدة الزاوية','<option value="deg">درجات DEG</option><option value="rad">راديان RAD</option>')}</details><p class="note">الأولوية للأقواس ثم الأسس ثم الضرب والقسمة. الرمز % يقسم العدد على ١٠٠؛ لحساب زيادة ١٥٪ اكتب 200 × (1 + 15%).</p>`;
+}else if(key==='gpa'){content=`<div class="fields-grid">${select('scale','نظام المعدل','<option value="5">من ٥</option><option value="4">من ٤</option>')}${field('previous-hours','الساعات السابقة (اختياري)','0')}${field('previous-gpa','المعدل السابق (اختياري)','0')}</div><h2 class="subheading">مواد الفصل الدراسي</h2><div id="courses"></div><button type="button" id="add-course" class="button secondary">+ إضافة مادة</button><details class="grade-map"><summary>مراجعة وتعديل سلم التقديرات</summary><p class="note">هذا سلم ابتدائي قابل للتعديل، وليس اعتمادًا من جامعة. طابق النقاط مع لائحة جامعتك؛ نقطة الرسوب قد تختلف.</p><div id="map-fields" class="mapping-grid"></div></details>`;
+}else if(key==='age'){content=field('birth','تاريخ الميلاد','','date');
+}else if(key==='finance'||key==='loans'){content=`<div class="fields-grid">${field('amount','المبلغ (ريال)')}${field('months','المدة بالأشهر')}${field('rate','النسبة السنوية (%)','0')}</div><p class="note">تقدير لأقساط ثابتة بنموذج الفائدة المتناقصة، لا يشمل الرسوم أو التأمين ولا يمثل عرض تمويل.</p>`;
+}else if(key==='vat'){content=`<div class="fields-grid">${field('amount','المبلغ (ريال)')}${field('rate','نسبة الضريبة (%)','15')}${select('included','نوع المبلغ','<option value="no">قبل الضريبة</option><option value="yes">شامل الضريبة</option>')}</div>`;
+}else if(key==='zakat'){content=field('amount','المبلغ (ريال)')+'<p class="note">حساب ٢٫٥٪ فقط. لا يتحقق التطبيق من النصاب أو الحول أو نوع المال.</p>';
+}else{content=`<div class="fields-grid">${field('part','القيمة الجزئية')}${field('total','القيمة الكلية')}</div>`;}
+$('#fields').innerHTML=content;
+if(key==='gpa'){course();course();mapping();$('#scale').onchange=()=>{mapping();invalidate();};$('#add-course').onclick=()=>{if(all('.course').length>=20)return toast('الحد الأقصى ٢٠ مادة.');course();invalidate();};}
+if(key==='general')all('[data-key]').forEach(b=>b.onclick=()=>{const input=$('#expression'),k=b.dataset.key;if(k==='AC')input.value='';else if(k==='⌫'){const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;input.setRangeText('',start===end?Math.max(0,start-1):start,end,'end');}else{input.setRangeText(k,input.selectionStart??input.value.length,input.selectionEnd??input.value.length,'end');}input.focus();invalidate();});
 }
-
-function resetForm() {
-  const rows = document.querySelectorAll("#subjectsBody tr");
-  rows.forEach((row, index) => {
-    row.querySelector("input[type='text']").value = `مادة ${index + 1}`;
-    const hoursInput = row.querySelector(".hours");
-    const gradeSelect = row.querySelector(".grade");
-    const qualityCell = row.querySelector(".quality");
-    const pointsCell = row.querySelector(".points");
-
-    hoursInput.value = index === 2 ? 2 : 3; // نفس المثال
-    const defaultValues = [4.75, 4.0, 3.5, 3.0];
-    gradeSelect.value = defaultValues[index];
-
-    const hours = Number(hoursInput.value);
-    const quality = Number(gradeSelect.value);
-    const points = hours * quality;
-
-    qualityCell.textContent = quality.toFixed(2);
-    pointsCell.textContent = points.toFixed(2);
-  });
-
-  calcGpa();
-}
-
-document.getElementById("calcBtn").addEventListener("click", calcGpa);
-document.getElementById("resetBtn").addEventListener("click", resetForm);
-
-// حساب أولي عند فتح الصفحة
-window.addEventListener("load", () => {
-  calcGpa();
-});
+$('#calc-form').addEventListener('input',invalidate);
+$('#calc-form').addEventListener('change',invalidate);
+$('#reset').onclick=()=>renderCalculator(active);
+$('#calc-form').onsubmit=e=>{e.preventDefault();invalidate();try{const v=id=>$('#'+id).value;let value='',detail='',inputs=[];const add=(name,x)=>inputs.push([name,String(x)]);
+if(active==='general'){const answer=evaluate(v('expression'),v('angle')==='deg');value=String(Number(answer.toPrecision(12)));detail='وحدة الزاوية: '+(v('angle')==='deg'?'درجات':'راديان');add('العملية',v('expression'));add('وحدة الزاوية',v('angle'));}
+if(active==='gpa'){const scale=Number(v('scale')),map=Object.fromEntries(all('[data-grade]').map(x=>[x.dataset.grade,x.value]));const courses=all('.course').map(c=>({name:c.querySelector('.name').value.trim()||'مادة',hours:c.querySelector('.hours').value,grade:c.querySelector('.grade').value}));const result=gpa(courses,scale,map,{hours:v('previous-hours'),gpa:v('previous-gpa')});value=fmt(result.semester)+' / '+fmt(scale);detail=`المعدل التراكمي: ${fmt(result.cumulative)}\nساعات الفصل: ${fmt(result.hours)} • نقاط الفصل: ${fmt(result.points)}`;add('نظام المعدل',scale);add('الساعات السابقة',v('previous-hours'));add('المعدل السابق',v('previous-gpa'));courses.forEach(c=>add(c.name,`${c.hours} h | ${c.grade} | ${map[c.grade]} pt`));add('سلم النقاط',Object.entries(map).map(([k,v])=>`${k}=${v}`).join(' | '));}
+if(active==='age'){const result=age(v('birth'));value=fmt(result.years,0)+' سنة';detail=`العمر بالأيام: ${fmt(result.days,0)}\nبحسب تاريخ الجهاز اليوم.`;add('تاريخ الميلاد',v('birth'));}
+if(active==='finance'||active==='loans'){const result=installment(v('amount'),v('months'),v('rate'));value=fmt(result.payment)+' ريال / شهر';detail=`إجمالي السداد: ${fmt(result.total)} ريال\nتكلفة التمويل التقديرية: ${fmt(result.cost)} ريال\nلا يشمل الرسوم والتأمين.`;add('المبلغ',v('amount'));add('الأشهر',v('months'));add('النسبة السنوية',v('rate')+'%');}
+if(active==='vat'){const result=vat(v('amount'),v('rate'),v('included')==='yes');value=fmt(result.total)+' ريال';detail=`قبل الضريبة: ${fmt(result.base)} ريال\nالضريبة: ${fmt(result.tax)} ريال`;add('المبلغ المدخل',v('amount'));add('نسبة الضريبة',v('rate')+'%');add('نوع المبلغ',v('included')==='yes'?'شامل الضريبة':'قبل الضريبة');}
+if(active==='zakat'){value=fmt(zakat(v('amount')))+' ريال';detail='نسبة ٢٫٥٪ من المبلغ، دون التحقق من شروط وجوب الزكاة.';add('المبلغ',v('amount'));}
+if(active==='percent'){value=fmt(percentage(v('part'),v('total')))+'٪';detail='القيمة الجزئية ÷ القيمة الكلية × ١٠٠';add('القيمة الجزئية',v('part'));add('القيمة الكلية',v('total'));}
+current={id:crypto.randomUUID(),kind:active,title:catalog[active][0],value,detail,inputs,date:new Date().toISOString()};$('#result-value').textContent=value;$('#result-detail').textContent=detail;$('#result').hidden=false;$('#save').disabled=false;$('#save').textContent='حفظ';$('#result').scrollIntoView({behavior:'auto',block:'nearest'});
+}catch(error){$('#error').textContent=error.message;$('#error').hidden=false;}};
+const KEY='meyar.history.v1';
+function readHistory(){try{const data=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(data))throw Error();return data.filter(r=>r&&typeof r.id==='string'&&typeof r.title==='string'&&typeof r.value==='string'&&typeof r.detail==='string'&&Array.isArray(r.inputs)&&!Number.isNaN(Date.parse(r.date))).slice(0,100);}catch{return [];}}
+function writeHistory(data){try{localStorage.setItem(KEY,JSON.stringify(data));return true;}catch{toast('تعذر الحفظ. مساحة الجهاز ممتلئة أو التخزين غير متاح.');return false;}}
+$('#save').onclick=()=>{if(!current)return;const list=readHistory();if(list.some(x=>x.id===current.id))return;if(writeHistory([current,...list].slice(0,100))){$('#save').disabled=true;$('#save').textContent='محفوظ';toast('حُفظت النتيجة على جهازك.');}};
+async function action(button,fn){const old=button.textContent;button.disabled=true;button.textContent='جاري التجهيز…';try{await fn();}catch(e){if(e.name!=='AbortError'&&!/cancel/i.test(e.message))toast('تعذر إكمال العملية: '+e.message);}finally{button.disabled=false;button.textContent=old;}}
+$('#share').onclick=()=>current&&action($('#share'),()=>shareText(current));
+$('#pdf').onclick=()=>current&&action($('#pdf'),()=>createReport([current]));
+function renderHistory(){const list=readHistory();$('#history-list').innerHTML=list.length?list.map(r=>`<article class="panel history-item"><h2>${esc(r.title)}</h2><strong>${esc(r.value)}</strong><p>${esc(r.detail)}</p><time datetime="${esc(r.date)}">${esc(new Date(r.date).toLocaleString('ar-SA',{dateStyle:'medium',timeStyle:'short'}))}</time><div class="history-actions"><button class="button secondary" data-report="${esc(r.id)}">تقرير PDF</button><button class="button secondary" data-delete="${esc(r.id)}">حذف</button></div></article>`).join(''):'<div class="panel empty"><h2>أول نتيجة تنتظرك</h2><p>احسب أي عملية ثم اضغط «حفظ» لتظهر هنا.</p><a class="button secondary" href="#home">ابدأ الحساب</a></div>';['clear-history','export-history','export-csv'].forEach(id=>$('#'+id).hidden=!list.length);all('[data-delete]').forEach(b=>b.onclick=()=>{if(writeHistory(readHistory().filter(x=>x.id!==b.dataset.delete)))renderHistory();});all('[data-report]').forEach(b=>b.onclick=()=>action(b,()=>createReport(list.filter(x=>x.id===b.dataset.report))));}
+$('#clear-history').onclick=()=>$('#confirm').showModal();$('#confirm').onclose=()=>{if($('#confirm').returnValue==='delete'&&writeHistory([]))renderHistory();};
+$('#export-history').onclick=()=>action($('#export-history'),()=>createReport(readHistory()));
+$('#export-csv').onclick=()=>action($('#export-csv'),()=>exportCsv(readHistory()));
+function route(){const hash=location.hash.slice(1)||'home';const section=catalog[hash]?'calculator':['home','history','settings'].includes(hash)?hash:'home';['home','calculator','history','settings'].forEach(id=>$('#'+id).hidden=id!==section);all('[data-tab]').forEach(a=>{if(a.dataset.tab===(section==='calculator'?'home':section))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});if(section==='calculator')renderCalculator(hash);if(section==='history')renderHistory();window.scrollTo(0,0);}
+window.addEventListener('hashchange',route);route();
+// The native shell already bundles the app; service workers are for hosted web only.
+if('serviceWorker'in navigator&&['https:','http:'].includes(location.protocol))navigator.serviceWorker.register('./sw.js').catch(()=>{});

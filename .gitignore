@@ -1,2 +1,10 @@
-/.DS_Store
-/.vscode
+node_modules/
+www/
+.DS_Store
+*.log
+.env*
+!.env.example
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/Pods/
+ios/DerivedData/

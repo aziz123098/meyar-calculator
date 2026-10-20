@@ -1,102 +1,90 @@
 <div align="center">
 
 # معيار | Meyar
-### Everyday calculations, in one Arabic interface.
+### Calculate, save, and share — in Arabic.
 
-A lightweight browser-based calculator suite for academic and everyday tasks, built with HTML, CSS, and vanilla JavaScript.
-
-![HTML5](https://img.shields.io/badge/HTML5-0B0B1A?style=for-the-badge&logo=html5&logoColor=E34F26)
-![CSS3](https://img.shields.io/badge/CSS3-0B0B1A?style=for-the-badge&logo=css&logoColor=663399)
-![JavaScript](https://img.shields.io/badge/JavaScript-0B0B1A?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=for-the-badge&logo=capacitor&logoColor=white)
 ![Arabic RTL](https://img.shields.io/badge/Arabic-RTL-7B3CFF?style=for-the-badge)
 
-**7 calculator views · Arabic interface · Dark theme · No backend**
+**8 calculator views · PDF reports · Local history · Offline support**
 
 </div>
 
----
+Meyar is an Arabic calculator suite with a responsive web interface and an iOS project powered by Capacitor. Calculations and saved history stay on the device. No account or backend is required.
 
-## Project Cover
+**Status:** iOS preparation build, version 0.2.0. The web bundle has been tested; native compilation, physical-device testing, signing, and App Store submission are still pending. Purchases are not implemented.
 
-![Meyar — Arabic calculator suite project cover](docs/images/meyar-cover.svg)
+## Preview
 
-*Project cover based on the application's existing logo and dark-purple palette.*
+<img src="docs/images/mobile-preview.png" alt="Meyar mobile web home screen" width="320">
 
-## Overview
+Actual mobile web screenshot; not an App Store screenshot.
 
-**Meyar (معيار)** brings seven calculator views into a single Arabic, right-to-left web interface. Users can switch between academic, age, financing, and percentage calculations from a sidebar. Calculations run locally in the browser; the current application does not require an account, database, or API.
+## Features
 
-The interface uses a dark palette with purple accents, editable inputs, and result cards.
-
-## Calculators
-
-| Calculator | Current functionality |
+| View | Functionality |
 | :--- | :--- |
-| GPA | Enter course hours and grades; display weighted points, total hours, and a semester result. |
-| Age | Calculate completed years from a date of birth. |
-| Finance | Estimate a monthly installment from an amount, term, and annual rate. |
-| Loans | A separate loan view using the same installment formula. |
-| VAT | Calculate tax and the total amount using an entered percentage. |
-| Zakat | Calculate 2.5% of an entered amount. |
+| General | Addition, subtraction, multiplication, division, parentheses, powers, percent, factorial, roots, logarithms, and trigonometry in degrees or radians. |
+| GPA | Semester and cumulative GPA; editable 4- and 5-point grade mappings. Verify the mapping against your university. |
+| Age | Completed years and elapsed days. |
+| Finance / Loans | Fixed monthly installment estimates with a zero-rate case. Fees and insurance are excluded. |
+| VAT | Add tax or extract it from an inclusive amount. |
+| Zakat | Calculate 2.5%; does not determine eligibility, nisab, or hawl. |
 | Percentage | Calculate a part as a percentage of a total. |
 
-## Project Structure
+Save up to 100 results locally, export PDF reports with inputs and timestamps, export history as CSV, and share results. PDF reports are personal calculation records, not certified documents. Clearing site/app data can remove history. Export copies remain wherever the user saves them.
+
+## Structure
 
 | Path | Purpose |
 | :--- | :--- |
-| `index.html` | Application entry point; contains the current markup, inline CSS, and working JavaScript. |
-| `app.js` | Separate GPA script retained in the repository; not loaded by the current entry point. |
-| `style.css` | Separate style rules retained in the repository; not loaded by the current entry point. |
-| `project -meyar-calculator/` | Duplicate copies of the three application files. |
-| `.github/workflows/static.yml` | GitHub Actions workflow for publishing static content to GitHub Pages. |
-| `docs/images/meyar-cover.svg` | Project cover used in this README. |
-| `README.md` | Project description, structure, setup, and implementation notes. |
+| `index.html`, `style.css` | Responsive RTL interface and styling. |
+| `app.js` | Forms, routing, saved history, and report actions. |
+| `calculations.js` | Validated calculation functions and expression parser; no `eval`. |
+| `reports.js` | PDF, CSV, and browser/native sharing. |
+| `assets/` | Icons, locally bundled PDF font, and font license. |
+| `sw.js`, `manifest.webmanifest` | Offline web caching and install metadata. |
+| `privacy.html` | Privacy policy draft for release review. |
+| `ios/`, `capacitor.config.json` | Native iOS shell, app assets, and privacy manifest. |
+| `scripts/build.mjs` | Builds the web distribution in `www/`. |
+| `tests/` | Calculation and invalid-input tests. |
+| `docs/IOS_RELEASE.md` | Native build and release checklist. |
+| `docs/MONETIZATION.md` | Proposed commercial model; no checkout enabled. |
+| `project -meyar-calculator/` | Legacy duplicate files, excluded from the application build. |
 
-## How It Works
+## Run locally
 
-```mermaid
-flowchart TD
-    A["Open index.html"] --> B["Choose a calculator"]
-    B --> C["Enter values"]
-    C --> D["JavaScript calculation"]
-    D --> E["Update result in the page"]
-    E --> B
-```
-
-## Run Locally
-
-No package installation or build step is required.
+Use Node.js 22 or newer:
 
 ```bash
-git clone https://github.com/aziz123098/meyar-calculator.git
-cd meyar-calculator
+npm ci
+npm test
+npm run build
+python3 -m http.server 8000 --directory www
 ```
 
-Open `index.html` in a browser. Alternatively, if Python is installed:
+Open <http://localhost:8000>. Serve `www/`; opening the source HTML directly will not resolve bundled dependencies. Offline web use becomes available after the initial assets are cached. The iOS app bundles these assets locally.
+
+## Run on iOS
+
+On a Mac with supported Xcode installed:
 
 ```bash
-python3 -m http.server 8000
+npm ci
+npm run ios:sync
+npm run ios:open
 ```
 
-Then open [localhost:8000](http://localhost:8000).
+Select your Apple development team and device in Xcode. Review [the release checklist](docs/IOS_RELEASE.md) before distribution. The bundle ID `com.aziz123098.meyar` must be verified for the owner's account before release.
 
-## Implementation Notes
+## Verification
 
-This repository is a frontend prototype. The following limitations are visible in the current source:
-
-- **GPA scale:** Selecting a 4- or 5-point scale changes the displayed scale and classification thresholds, but not the grade-point mapping. Scale-specific mappings need to be implemented before relying on results.
-- **Reset button:** The current inline application script does not attach a handler to the reset button.
-- **Input validation:** Several calculators need stronger handling of zero, negative, and invalid inputs.
-- **Mobile layout:** The current page uses a fixed-width sidebar and has no responsive breakpoints or viewport metadata.
-- **Financial calculations:** Installment estimates do not include provider fees; the zakat view is a percentage calculation, not an eligibility assessment.
-
-## Development Priorities
-
-- [ ] Implement and verify separate GPA mappings.
-- [ ] Connect the reset action and improve input validation.
-- [ ] Add a mobile-friendly layout.
-- [ ] Consolidate duplicate files and separate application logic and styles.
-- [ ] Add automated checks for calculator formulas and edge cases.
+- 39 automated calculation tests passed.
+- Chromium smoke checks passed for calculation, invalid inputs, result invalidation, saved history persistence, PDF/CSV downloads, and offline reload.
+- Layout checked at widths 320, 390, and 1280 pixels.
+- Arabic PDF inspected visually, including preservation of mathematical expression order.
+- `npm run ios:sync` succeeded; no Xcode build or physical-iPhone test has been performed in this environment.
 
 ## Author
 

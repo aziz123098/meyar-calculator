@@ -1,0 +1,16 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{evaluate,gpa,gradeMaps,installment,vat,percentage,zakat,age,num}from'../calculations.js';
+const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+for(const [expression,answer]of [['2+3*4',14],['(2+3)*4',20],['2^3^2',512],['-2^2',-4],['(-2)^2',4],['2^-2',.25],['200*(1+15%)',230],['sqrt(81)',9],['5!',120],['sin(30)',.5],['log(100)',2],['ln(e)',1],['١٢÷٣',4],['1e3+2',1002],['0-5',-5]])test(expression,()=>near(evaluate(expression),answer));
+for(const bad of ['1/0','sqrt(-1)','log(0)','tan(90)','2(3)','alert(1)','1;2','(2+3','171!','1..2','2**3','1e309'])test('reject '+bad,()=>assert.throws(()=>evaluate(bad)));
+test('radians',()=>near(evaluate('sin(pi/2)',false),1));
+test('4 and 5 scales differ',()=>{near(gpa([{hours:3,grade:'A+'}],5).semester,5);near(gpa([{hours:3,grade:'A+'}],4).semester,4);});
+test('weighted and cumulative GPA',()=>{const x=gpa([{hours:3,grade:'A+'},{hours:1,grade:'B'}],5,gradeMaps[5],{hours:20,gpa:4});near(x.semester,4.75);near(x.cumulative,99/24);});
+test('GPA accepts custom mapping and rejects above scale',()=>{near(gpa([{hours:2,grade:'F'}],5,{F:0}).semester,0);assert.throws(()=>gpa([{hours:2,grade:'A+'}],4,{ 'A+':5}));});
+test('zero rate installment',()=>near(installment(12000,12,0).payment,1000));
+test('installment known amortization',()=>near(installment(100000,360,6).payment,599.5505251527569));
+test('tiny rate stable',()=>near(installment(12000,12,.00000001).payment,1000.0000000541667));
+test('VAT round trip',()=>{const a=vat(100,15);near(a.total,115);near(vat(a.total,15,true).base,100);near(vat(0,15).tax,0);});
+test('percent zero valid denominator zero invalid',()=>{near(percentage(0,100),0);assert.throws(()=>percentage(5,0));});
+test('zakat arithmetic',()=>near(zakat(10000),250));
+test('age birthday boundary',()=>{assert.equal(age('2000-10-20',new Date(2026,9,19)).years,25);assert.equal(age('2000-10-20',new Date(2026,9,20)).years,26);assert.throws(()=>age('2030-01-01',new Date(2026,9,20)));assert.throws(()=>age('2025-02-30'));});
+test('Arabic numbers and empty input',()=>{near(num('١٢٫٥'),12.5);assert.throws(()=>num(''));assert.throws(()=>installment(-10,12,5));assert.throws(()=>installment(100,1.5,5));});
