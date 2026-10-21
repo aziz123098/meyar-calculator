@@ -14,3 +14,9 @@ Reports support selection, optional title, HTML content preview and PDF export/n
 ![general](images/general-v3.png)
 ![login](images/login-v3.png)
 ![signup](images/signup-v3.png)
+## Approved premium direction — 0.3.1
+
+Porcelain #f7f5ef, ink #172824 and bronze #a28353. Arch/tick monogram. Calculator has an integrated result display and equals key. Dark mode uses #111916 with warm light text and brighter bronze. Appearance supports explicit light/dark or automatic system preference; selection is persisted locally.
+
+![Dark home](images/home-dark.png)
+![Dark calculator](images/general-dark.png)
