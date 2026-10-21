@@ -65,7 +65,7 @@ if(page==='signup')content=`<h1>البداية من هنا</h1><p>أنشئ حس�
 if(page==='forgot')content=`<h1>نسيت كلمة المرور؟</h1><p>أدخل البريد المرتبط بحسابك لاستعادة الوصول.</p>${notice}<form id="auth-form">${emailField}<button class="button primary">إرسال رابط الاستعادة</button></form><a class="button" href="#login">العودة لتسجيل الدخول</a>`;
 if(page==='verify')content=`<h1>تأكيد البريد الإلكتروني</h1><p>التأكيد بالبريد سيصبح متاحًا عند تفعيل التسجيل. لم تُرسل رسالة في هذه النسخة.</p>${notice}<button id="resend-email" class="button secondary">إعادة إرسال رسالة التأكيد</button><a href="#signup" class="button">تعديل البريد</a>`;
 if(page==='reset-password')content=`<h1>كلمة مرور جديدة</h1><p>يتطلب تغيير كلمة المرور رابط استعادة صالحًا.</p>${notice}<form id="auth-form">${passwordField('كلمة المرور الجديدة','password','new-password')}${passwordField('تأكيد كلمة المرور','confirm','new-password')}<button class="button primary">حفظ كلمة المرور</button></form>`;
-$('#auth').innerHTML=`<div class="auth-wrap"><a class="back" href="#home">← المتابعة كضيف</a><a class="auth-brand" href="#welcome"><img src="assets/icon.svg" alt="">معيار</a>${content}<p id="auth-status" role="alert" hidden></p></div>`;
+$('#auth').innerHTML=`<div class="auth-wrap"><a class="back" href="#home">← المتابعة كضيف</a><a class="auth-brand" href="#welcome"><img src="assets/icon-192.png" alt="">معيار</a>${content}<p id="auth-status" role="alert" hidden></p></div>`;
 const unavailable=()=>{const n=$('#auth-status');n.className='error';n.hidden=false;n.textContent=navigator.onLine?'خدمة الحسابات لم تُفعّل بعد. لم تُرسل بياناتك ولم يُنشأ حساب. تابع كضيف.':'لا يوجد اتصال بالإنترنت. يمكنك المتابعة كضيف واستخدام الحاسبات.';};
 if($('#auth-form'))$('#auth-form').onsubmit=e=>{e.preventDefault();const form=e.currentTarget;const pwd=form.elements.password,confirm=form.elements.confirm;if(confirm){confirm.setCustomValidity(confirm.value!==pwd.value?'كلمتا المرور غير متطابقتين.':'');if(!form.reportValidity())return;}unavailable();};
 all('.password-toggle').forEach(b=>b.onclick=()=>{const i=b.previousElementSibling;i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'إظهار':'إخفاء';b.setAttribute('aria-label',b.textContent+' كلمة المرور');});
@@ -83,4 +83,3 @@ function route(){const hash=location.hash.slice(1)||'home';const section=authRou
 window.addEventListener('hashchange',route);route();
 // The native shell already bundles the app; service workers are for hosted web only.
 if('serviceWorker'in navigator&&['https:','http:'].includes(location.protocol))navigator.serviceWorker.register('./sw.js').catch(()=>{});
-

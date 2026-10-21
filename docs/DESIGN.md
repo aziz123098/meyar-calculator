@@ -24,3 +24,7 @@ Porcelain #f7f5ef, ink #172824 and bronze #a28353. Arch/tick monogram. Calculato
 ## System type and calculator mark
 
 UI uses the native system font first, with bundled Arabic fallback. Numerals use the same system family. The calculator outline combines plus/equal symbols and measurement ticks to convey calculation and precision. PDF Arabic font remains bundled for export reliability.
+
+## Rendering repair
+
+After native missing-glyph reports, the packaged Arabic font takes precedence again. UI logos load the packaged PNG rendition. Native asset catalog still uses the 1024px icon. A fresh Xcode build is required; browser checks cannot verify the affected simulator.
