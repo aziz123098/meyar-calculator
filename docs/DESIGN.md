@@ -20,3 +20,7 @@ Porcelain #f7f5ef, ink #172824 and bronze #a28353. Arch/tick monogram. Calculato
 
 ![Dark home](images/home-dark.png)
 ![Dark calculator](images/general-dark.png)
+
+## System type and calculator mark
+
+UI uses the native system font first, with bundled Arabic fallback. Numerals use the same system family. The calculator outline combines plus/equal symbols and measurement ticks to convey calculation and precision. PDF Arabic font remains bundled for export reliability.
