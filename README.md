@@ -1,4 +1,4 @@
-> **UI update 0.3.1:** Approved ivory/ink/bronze theme, dark mode, four tabs, account screen designs and report selection. Email/Apple authentication is **not connected**; continue as guest. See [design notes](docs/DESIGN.md).
+> **UI update 0.4.0:** Approved navy/white/silver-blue theme, dark mode, four tabs, account screen designs and report selection. Email/Apple authentication is **not connected**; continue as guest. See [design notes](docs/DESIGN.md).
 
 <div align="center">
 

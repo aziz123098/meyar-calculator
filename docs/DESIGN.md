@@ -28,3 +28,7 @@ UI uses the native system font first, with bundled Arabic fallback. Numerals use
 ## Rendering repair
 
 After native missing-glyph reports, the packaged Arabic font takes precedence again. UI logos load the packaged PNG rendition. Native asset catalog still uses the 1024px icon. A fresh Xcode build is required; browser checks cannot verify the affected simulator.
+
+## Approved navy direction
+
+White #f7f9fc, navy #14213d, steel blue #416797. Dark #0c1426 with #adc6ea accents. Equality/measurement monogram. Compact dashboard with no sample calculations; scientific mode selector and disabled-until-calculated report/save/share actions. Bundled Arabic font kept for native glyph reliability. Authentication remains unconnected.
